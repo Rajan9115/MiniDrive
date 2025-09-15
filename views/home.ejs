@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>File Upload</title>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Flowbite CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/flowbite@1.5.4/dist/flowbite.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+</head>
+
+<body class="bg-white dark:bg-gray-800 dark:text-white">
+
+  <!-- Main Upload Button -->
+  <div id="mainButtonContainer">
+    <div class="flex justify-between items-center p-4  bg-gray-200 rounded-md shadow-md fixed top-0 left-0 right-0">
+     <div>
+       <button
+      id="uploadButton"
+      class="px-6 py-3 bg-blue-500 mt-2 text-white rounded-lg hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      onclick="showUploadForm();">
+      Upload File
+    </button>
+     </div>
+
+    <!-- Logout Button -->
+     <div>
+       <form action="/logout" method="GET">
+      <button type="submit" class="px-6 py-3 bg-red-500 mt-2 text-white rounded-lg hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-500">
+        Logout
+      </button>
+    </form>
+     </div>
+  </div>
+
+    <!-- File List -->
+    <div id="fileList" class="mt-20 p-4 files flex flex-col gap-2">
+      <%- include('files/partial', { files }) %>
+    </div>
+  </div> 
+
+    
+
+
+<!-- Upload Form -->
+<div id="uploadFormContainer" class="hidden bg-gray-100 dark:bg-gray-700 p-6 rounded-xl shadow-lg w-96 max-w-full h-[320px] absolute top-6 left-1/2 -translate-x-1/2 flex flex-col">
+  
+  <!-- Close Button -->
+  <button
+    class="absolute top-2 right-2 text-2xl  rounded-full text-red-300 hover:text-red-500"
+    onclick="hideUploadForm();">
+    &times;
+  </button>
+
+  <!-- Heading -->
+  <div class="mb-4 text-center">
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Upload File</h2>
+  </div>
+
+  <!-- Form Container grows to fill space -->
+  <div class="flex-grow flex flex-col justify-between">
+    <form id="uploadForm" enctype="multipart/form-data" class="flex flex-col h-full justify-between">
+      
+      <!-- File Input -->
+      <div class="w-full  h-30 border border-gray-500 rounded-md">
+        <div class="flex-grow  flex items-center justify-space-between">
+        <input type="file" id="fileInput" name="file" class="cursor-pointer m-5 w-full p-4 text-gray-700 dark:text-gray-300 rounded-lg" required />
+      </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="flex justify-center mt-4">
+        <button
+          type="submit"
+          class="px-8 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+          Upload
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+  <!-- Flowbite JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.4/dist/flowbite.min.js"></script>
+
+  <script>
+    function showUploadForm() {
+      document.getElementById('mainButtonContainer').classList.add('hidden');
+      document.getElementById('uploadFormContainer').classList.remove('hidden');
+    }
+
+    function hideUploadForm() {
+      document.getElementById('uploadFormContainer').classList.add('hidden');
+      document.getElementById('mainButtonContainer').classList.remove('hidden');
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please select a file first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert("File uploaded successfully!");
+          fileInput.value = "";
+          hideUploadForm();
+
+          // Reload the file list via AJAX
+          const listRes = await fetch('/files/partial');
+          const listHtml = await listRes.text();
+          document.getElementById('fileList').innerHTML = listHtml;
+        } else {
+          alert("Upload failed: " + (data.message || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Something went wrong. Try again.");
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

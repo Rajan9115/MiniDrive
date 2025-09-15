@@ -1,0 +1,15 @@
+<% if (files.length > 0) { %>
+    <% files.forEach((file) => { %>
+      <div class="p-2 rounded-md cursor-pointer bg-gray-300 flex justify-between">
+        <h1 class="text-black"><%= file.originalname %></h1>
+        <a href="/download/<%= file._id %>" class="text-blue-500 hover:text-blue-700">
+          <i class="ri-download-2-fill"></i> Download
+        </a>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <div class="p-2 text-center text-gray-500">
+      Some of the files you uploaded before have expired. Please upload the files again if you want to load them.
+    </div>
+  <% } %>
+  
