@@ -8,6 +8,7 @@ app.use(express.urlencoded({extended:true}))
 //use env variable anywhere in app install dotenv and require here
 const dotenv = require('dotenv');
 dotenv.config();
+const Port=process.env.PORT;
 //express-fileupload  to upload file on cloudinary
 const fileupload = require('express-fileupload');
 app.use(fileupload({
@@ -55,6 +56,6 @@ app.get('/home', authMiddleware,async (req, res) => {
 
 
 
-app.listen(4001,()=>{
-    console.log("server is running on port 4001")
+app.listen(Port,()=>{
+    console.log("server is running on port",Port)
 })
